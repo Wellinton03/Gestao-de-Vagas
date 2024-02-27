@@ -1,4 +1,4 @@
-package br.com.wellinton.gestao_vagas.controllers;
+package br.com.wellinton.gestao_vagas.candidate.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
