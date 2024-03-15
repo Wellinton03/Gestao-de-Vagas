@@ -22,9 +22,10 @@ public class ExceptionHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorMessageDTO>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         List<ErrorMessageDTO> dto = new ArrayList<>();
-        e.getBindingResult().getFieldErrors().forEach(err-> {
 
-            String message = messageSource.getMessage(err, LocaleContextHolder.getLocale());
+        
+        e.getBindingResult().getFieldErrors().forEach(err-> {
+			String message = messageSource.getMessage(err, LocaleContextHolder.getLocale());
             ErrorMessageDTO error = new ErrorMessageDTO(message, err.getField());
             dto.add(error);
         });

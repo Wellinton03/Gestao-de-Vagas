@@ -1,5 +1,8 @@
 package br.com.wellinton.gestao_vagas.useCases;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import javax.naming.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ public class AuthCompanyUseCase {
     public String execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
         var company = this.companyRepository.findByusername(authCompanyDTO.getUsername()).orElseThrow(
         () -> {
-            throw new UsernameNotFoundException("Company not found");
+            throw new UsernameNotFoundException("Username/password incorrect");
         });
         var passwordMatches = this.passwordEncoder.matches(authCompanyDTO.getPassword(), company.getPassword());
 
@@ -37,7 +40,8 @@ public class AuthCompanyUseCase {
             throw new AuthenticationException();
         }
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
-        var token = JWT.create().withIssuer("Javagas") 
+        var token = JWT.create().withIssuer("Javagas")
+        .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
         .withSubject(company.getId().toString())
         .sign(algorithm);
         return token;
