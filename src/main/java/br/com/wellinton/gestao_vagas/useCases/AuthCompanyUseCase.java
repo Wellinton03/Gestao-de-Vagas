@@ -16,6 +16,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 
 import br.com.wellinton.gestao_vagas.company.repositories.CompanyRepository;
 import br.com.wellinton.gestao_vagas.dto.AuthCompanyDTO;
+import br.com.wellinton.gestao_vagas.dto.AuthCompanyResponseDTO;
 
 @Service
 public class AuthCompanyUseCase {
@@ -29,7 +30,7 @@ public class AuthCompanyUseCase {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
+    public AuthCompanyResponseDTO execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
         var company = this.companyRepository.findByusername(authCompanyDTO.getUsername()).orElseThrow(
         () -> {
             throw new UsernameNotFoundException("Username/password incorrect");
@@ -40,10 +41,18 @@ public class AuthCompanyUseCase {
             throw new AuthenticationException();
         }
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
+        var expiresIn = Instant.now().plus(Duration.ofHours(2));
+
         var token = JWT.create().withIssuer("Javagas")
-        .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
+        .withExpiresAt(expiresIn)
         .withSubject(company.getId().toString())
         .sign(algorithm);
-        return token;
+
+        var authCompanyResponseDTO = AuthCompanyResponseDTO.builder()
+        .acess_token(token)
+        .expires_in(expiresIn.toEpochMilli())
+        .build();
+        return authCompanyResponseDTO;
     }
 }
