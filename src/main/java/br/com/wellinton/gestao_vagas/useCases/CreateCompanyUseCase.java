@@ -10,7 +10,7 @@ import br.com.wellinton.gestao_vagas.exceptions.UserFoundException;
 
 @Service
 public class CreateCompanyUseCase {
-    
+
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -18,16 +18,18 @@ public class CreateCompanyUseCase {
     private PasswordEncoder passwordEncoder;
 
     public CompanyEntity execute(CompanyEntity companyEntity) {
-        
+
         this.companyRepository
-        .findByUsernameOrEmail(companyEntity.getUsername(), companyEntity.getEmail())
-        .ifPresent((User) -> {
-            throw new UserFoundException();
-        });
+                .findByUsernameOrEmail(companyEntity.getUsername(), companyEntity.getEmail())
+                .ifPresent((user) -> {
+                    throw new UserFoundException();
+                });
 
         var password = passwordEncoder.encode(companyEntity.getPassword());
         companyEntity.setPassword(password);
 
-        return  this.companyRepository.save(companyEntity);
+        return this.companyRepository.save(companyEntity);
     }
+
 }
+

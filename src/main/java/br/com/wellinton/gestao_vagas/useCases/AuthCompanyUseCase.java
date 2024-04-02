@@ -2,6 +2,11 @@ package br.com.wellinton.gestao_vagas.useCases;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Date;
 
 import javax.naming.AuthenticationException;
 
@@ -13,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-
 import br.com.wellinton.gestao_vagas.company.repositories.CompanyRepository;
 import br.com.wellinton.gestao_vagas.dto.AuthCompanyDTO;
 import br.com.wellinton.gestao_vagas.dto.AuthCompanyResponseDTO;
@@ -23,7 +27,7 @@ public class AuthCompanyUseCase {
 
     @Value("${security.token.secret}")
     private String secretKey;
-    
+
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -31,28 +35,32 @@ public class AuthCompanyUseCase {
     private PasswordEncoder passwordEncoder;
 
     public AuthCompanyResponseDTO execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
-        var company = this.companyRepository.findByusername(authCompanyDTO.getUsername()).orElseThrow(
-        () -> {
-            throw new UsernameNotFoundException("Username/password incorrect");
-        });
+        var company = this.companyRepository.findByUsername(authCompanyDTO.getUsername()).orElseThrow(
+                () -> {
+                    throw new UsernameNotFoundException("Username/password incorrect");
+                });
+
         var passwordMatches = this.passwordEncoder.matches(authCompanyDTO.getPassword(), company.getPassword());
 
-        if(!passwordMatches){
+        if (!passwordMatches) {
             throw new AuthenticationException();
         }
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         var expiresIn = Instant.now().plus(Duration.ofHours(2));
 
-        var token = JWT.create().withIssuer("Javagas")
-        .withExpiresAt(expiresIn)
-        .withSubject(company.getId().toString())
-        .sign(algorithm);
+        var token = JWT.create().withIssuer("javagas")
+                .withSubject(company.getId().toString())
+                .withExpiresAt(expiresIn)
+                .withClaim("roles", Arrays.asList("COMPANY"))
+                .sign(algorithm);
 
         var authCompanyResponseDTO = AuthCompanyResponseDTO.builder()
-        .acess_token(token)
-        .expires_in(expiresIn.toEpochMilli())
-        .build();
+                .access_token(token)
+                .expires_in(expiresIn.toEpochMilli())
+                .build();
+
         return authCompanyResponseDTO;
     }
+
 }

@@ -1,11 +1,12 @@
-package br.com.wellinton.gestao_vagas.company.entities;
+package br.com.wellinton.gestao_vagas.candidate.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import br.com.wellinton.gestao_vagas.candidate.CandidateEntity;
+import br.com.wellinton.gestao_vagas.company.entities.JobEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,39 +14,35 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "job")
+@Entity(name = "apply_jobs")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class JobEntity {
+public class ApplyJobEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Schema(example = "Vaga para design")
-    private String description;
+    @ManyToOne
+    @JoinColumn(name = "candidate_id", insertable = false, updatable = false)
+    private CandidateEntity candidateEntity;
 
-    @Schema(example = "GYMPass, Plano de Saúde")
-    private String benefits;
+    @ManyToOne
+    @JoinColumn(name = "job_id", insertable = false, updatable = false)
+    private JobEntity jobEntity;
 
-    @NotBlank(message = "Esse campo é obrigatório")
-    @Schema(example = "SENIOR")
-    private String level;
+    @Column(name = "candidate_id")
+    private UUID candidateId;
 
-    @ManyToOne()
-    @JoinColumn(name = "company_id", insertable = false, updatable = false)
-    private CompanyEntity companyEntity;
-
-    @Column(name = "company_id")
-    private UUID companyId;
+    @Column(name = "job_id")
+    private UUID jobId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

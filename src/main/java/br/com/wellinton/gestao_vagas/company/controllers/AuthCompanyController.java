@@ -13,8 +13,8 @@ import br.com.wellinton.gestao_vagas.useCases.AuthCompanyUseCase;
 
 @RestController
 @RequestMapping("/company")
-public class AuthCompanyController { 
-    
+public class AuthCompanyController {
+
     @Autowired
     private AuthCompanyUseCase authCompanyUseCase;
 
@@ -23,8 +23,9 @@ public class AuthCompanyController {
         try {
             var result = this.authCompanyUseCase.execute(authCompanyDTO);
             return ResponseEntity.ok().body(result);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
+
     }
 }
